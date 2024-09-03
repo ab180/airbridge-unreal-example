@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- init section is always evaluated once per architecture -->
+    <init />
+
+    <gradleProperties>
+        <insert>
+            android.useAndroidX=true
+            android.enableJetifier=true
+        </insert>
+    </gradleProperties>
+
+    <baseBuildGradleAdditions>
+        <insert>
+            allprojects {
+                def classMap = [
+                    'android.support.annotation': 'androidx.annotation',
+                    'android.support.v4.app.ActivityCompat': 'androidx.core.app.ActivityCompat',
+                    'android.support.v4.app.NotificationCompat': 'androidx.core.app.NotificationCompat',
+                    'android.support.v4.app.NotificationManagerCompat': 'androidx.core.app.NotificationManagerCompat',
+                    'android.support.v4.content.ContextCompat': 'androidx.core.content.ContextCompat',
+                    'android.support.v4.content.FileProvider': 'androidx.core.content.FileProvider',
+                    'android.support.v13.app.FragmentCompat': 'androidx.legacy.app.FragmentCompat',
+                    'android.arch.lifecycle': 'androidx.lifecycle',
+                    'android.arch.lifecycle.Lifecycle': 'androidx.lifecycle.Lifecycle',
+                    'android.arch.lifecycle.LifecycleObserver': 'androidx.lifecycle.LifecycleObserver',
+                    'android.arch.lifecycle.OnLifecycleEvent': 'androidx.lifecycle.OnLifecycleEvent',
+                    'android.arch.lifecycle.ProcessLifecycleOwner': 'androidx.lifecycle.ProcessLifecycleOwner',
+                ]
+                afterEvaluate { project ->
+                    project.rootProject.projectDir.traverse(type: groovy.io.FileType.FILES, nameFilter: ~/.*\.java$/) { f ->
+                        classMap.each { entry ->
+                            if (f.getText('UTF-8').contains(entry.key)) {
+                                println "Change ${entry.key} to ${entry.value} in file ${f}"
+                                ant.replace(file: f, token: entry.key, value: entry.value)
+                            }
+                        }
+                    }
+                }
+            
+                subprojects {
+                    project.configurations.all {
+                        resolutionStrategy {
+                            force 'com.google.android.gms:play-services-base:11.8.0'
+                            force 'com.google.android.gms:play-services-basement:11.8.0'
+                            force 'com.google.android.gms:play-services-tasks:11.8.0'
+                        }
+                    }
+                }
+            }
+        </insert>
+    </baseBuildGradleAdditions>
+    
+    <gameActivityImportAdditions>
+        <insert>
+            import android.widget.Toast;
+        </insert>
+    </gameActivityImportAdditions>
+
+    <gameActivityClassAdditions>
+        <insert>
+            public void sampleShowToast(final String msg) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            public void sampleLogVerbose(String tag, String msg) { android.util.Log.v(tag, msg); }
+            public void sampleLogDebug(String tag, String msg) { android.util.Log.d(tag, msg); }
+            public void sampleLogInfo(String tag, String msg) { android.util.Log.i(tag, msg); }
+            public void sampleLogWarn(String tag, String msg) { android.util.Log.w(tag, msg); }
+            public void sampleLogError(String tag, String msg) { android.util.Log.e(tag, msg); }
+            public void sampleLogAssert(String tag, String msg) { android.util.Log.wtf(tag, msg); }
+        </insert>
+    </gameActivityClassAdditions>
+    
+</root>

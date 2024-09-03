@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/ios">
+
+    <!-- init section is always evaluated once per architecture -->
+    <init>
+        <copyDir
+                src="$S(EngineDir)/Intermediate/UnzippedFrameworks/AirBridge/AirBridge.embeddedframework/AirBridge.framework"
+                dst="$S(BuildDir)/Frameworks/AirBridge.framework"/>
+    </init>
+
+    <iosPListUpdates>
+    </iosPListUpdates>
+
+</root>

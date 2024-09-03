@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- init section is always evaluated once per architecture -->
+    <init>
+    
+    </init>
+
+    <!-- optional files or directories to copy or delete from Intermediate/Android/APK before ndk-build -->
+    <prebuildCopies>
+        <copyDir src="$S(PluginDir)/Private/Platforms/Android/Native" dst="$S(BuildDir)/src/co/ab180/airbridge/ue" />
+    </prebuildCopies>
+    
+    <buildGradleAdditions>
+        <insert>
+            repositories {
+                maven { url "https://sdk-download.airbridge.io/maven" }
+            }
+            dependencies {
+                implementation 'io.airbridge:sdk-android:2.25.0'
+            }
+        </insert>
+    </buildGradleAdditions>
+
+    <gradleProperties>
+        <insert>
+            org.gradle.jvmargs='-Dfile.encoding=UTF-8'
+        </insert>
+    </gradleProperties>
+    
+    <androidManifestUpdates>
+        <addPermission android:name="android.permission.INTERNET" />
+        <addPermission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+        <addElements tag="application">
+            <provider
+                    android:authorities="${applicationId}.co.ab180.airbridge.ue.AirbridgeContentProvider"
+                    android:name="co.ab180.airbridge.ue.AirbridgeContentProvider"
+                    android:exported="false" />
+
+            <!-- Meta data for Airbridge -->
+            <meta-data android:name="co.ab180.airbridge.sdk.app_name" android:value="" />
+            <meta-data android:name="co.ab180.airbridge.sdk.app_token" android:value="" />
+            <meta-data android:name="co.ab180.airbridge.sdk.sdk_signature_secret_id" android:value="" />
+            <meta-data android:name="co.ab180.airbridge.sdk.sdk_signature_secret" android:value="" />
+            <meta-data android:name="co.ab180.airbridge.sdk.log_level" android:value="5"/>
+            <meta-data android:name="co.ab180.airbridge.sdk.custom_domain" android:value="" />
+            <meta-data android:name="co.ab180.airbridge.sdk.session_timeout_seconds" android:value="0" />
+            <meta-data android:name="co.ab180.airbridge.sdk.user_info_hash_enabled" android:value="true" />
+            <meta-data android:name="co.ab180.airbridge.sdk.location_collection_enabled" android:value="false" />
+            <meta-data android:name="co.ab180.airbridge.sdk.track_airbridge_link_only" android:value="false" />
+            <meta-data android:name="co.ab180.airbridge.sdk.auto_start_tracking_enabled" android:value="true" />
+        </addElements>
+        
+        <!-- Deep Link Setup: Intent Filter Setup -->
+        <loopElements tag="activity">
+            <setStringFromAttribute result="activityName" tag="$" name="android:name"/>
+            <setBoolIsEqual result="bUE4GameActivity" arg1="$S(activityName)" arg2="com.epicgames.ue4.GameActivity"/>
+            <setBoolIsEqual result="bUE5GameActivity" arg1="$S(activityName)" arg2="com.epicgames.unreal.GameActivity"/>
+            <if condition="bUE4GameActivity">
+                <true>
+                    <addElements tag="$">
+                   
+                    </addElements>
+                </true>
+            </if>
+            <if condition="bUE5GameActivity">
+                <true>
+                    <addElements tag="$">
+                      
+                    </addElements>
+                </true>
+            </if>
+        </loopElements>
+    </androidManifestUpdates>
+
+    <gameActivityImportAdditions>
+        <insert>
+            import co.ab180.airbridge.ue.*;
+            import co.ab180.airbridge.*;
+            import co.ab180.airbridge.event.Event;
+            import co.ab180.airbridge.event.model.*;
+            import java.util.HashMap;
+        </insert>
+    </gameActivityImportAdditions>
+
+    <gameActivityClassAdditions>
+        <insert>
+            /** User Setup */
+            public void airbridgeSetUserId(String id) { 
+                Airbridge.getCurrentUser().setId(id); 
+            }
+            public void airbridgeSetUserEmail(String email) { 
+                Airbridge.getCurrentUser().setEmail(email); 
+            }
+            public void airbridgeSetUserPhone(String phone) { 
+                Airbridge.getCurrentUser().setPhone(phone); 
+            }
+            public void airbridgeSetUserAttribute(String key, int value) {
+                if (key == null) { return; }
+                Airbridge.getCurrentUser().setAttribute(key, value);
+            }
+            public void airbridgeSetUserAttribute(String key, long value) {
+                if (key == null) { return; }
+                Airbridge.getCurrentUser().setAttribute(key, value);
+            }
+            public void airbridgeSetUserAttribute(String key, float value) {
+                if (key == null) { return; }
+                Airbridge.getCurrentUser().setAttribute(key, value);
+            }
+            public void airbridgeSetUserAttribute(String key, boolean value) {
+                if (key == null) { return; }
+                Airbridge.getCurrentUser().setAttribute(key, value);
+            }
+            public void airbridgeSetUserAttribute(String key, String value) {
+                if (key == null || value == null) { return; }
+                Airbridge.getCurrentUser().setAttribute(key, value);
+            }
+            public void airbridgeRemoveUserAttribute(String key) {
+                if (key == null) { return; }
+                Airbridge.getCurrentUser().removeAttribute(key);
+            }
+            public void airbridgeClearUserAttributes() { 
+                Airbridge.getCurrentUser().clearAttributes(); 
+            }
+            public void airbridgeSetUserAlias(String key, String value) {
+                if (key == null || value == null) { return; }
+                Airbridge.getCurrentUser().setAlias(key, value); 
+            }
+            public void airbridgeRemoveUserAlias(String key) {
+                if (key == null) { return; }
+                Airbridge.getCurrentUser().removeAlias(key);
+            }
+            public void airbridgeClearUserAlias() {
+                Airbridge.getCurrentUser().clearAlias();
+            }
+            public void airbridgeClearUser() { 
+                Airbridge.expireUser(); 
+            }
+
+            /** Event Setup */
+            public void airbridgeSetCustomAttributes(Event event, HashMap&lt;String, Object&gt; customAttributes) {
+                event.setCustomAttributes(customAttributes);
+            }
+            public void airbridgeSetSemanticAttributes(Event event, HashMap&lt;String, Object&gt; semanticAttributes) {
+                event.setSemanticAttributes(semanticAttributes);
+            }
+            public void airbridgeTrackEvent(Event event) { Airbridge.trackEvent(event); }
+
+            /** Placement */
+            public void airbridgeClick(String trackingLink) {
+                if (trackingLink == null) { return; }
+                Airbridge.click(trackingLink, null);
+            }
+            public void airbridgeImpression(String trackingLink) {
+                if (trackingLink == null) { return; }
+                Airbridge.impression(trackingLink);
+            }
+
+            /** Device Alias */
+            public void airbridgeSetDeviceAlias(String key, String value) {
+                if (key == null || value == null) { return; }
+                Airbridge.setDeviceAlias(key, value);
+            }
+            public void airbridgeRemoveDeviceAlias(String key) {
+                if (key == null) { return; }
+                Airbridge.removeDeviceAlias(key);
+            }
+            public void airbridgeClearDeviceAlias() {
+                Airbridge.clearDeviceAlias();
+            }
+
+            /** Advanced Setup */
+            public void airbridgeStartTracking() { Airbridge.startTracking(); }
+            public void airbridgeRegisterPushToken(String token) {
+                if (token == null) { return; }
+                Airbridge.registerPushToken(token);
+            }
+            
+            public Number airbridgeToNumber(float value) { return value; }
+            public Number airbridgeToNumber(double value) { return value; }
+        </insert>
+    </gameActivityClassAdditions>
+    
+    <!-- Deep Link Callback Setup -->
+    <gameActivityOnResumeAdditions>
+        <insert>
+            Airbridge.getDeeplink(getIntent(), new AirbridgeUECallback());
+        </insert>
+    </gameActivityOnResumeAdditions>
+    <gameActivityOnNewIntentAdditions>
+        <insert>
+            setIntent(newIntent);
+        </insert>
+    </gameActivityOnNewIntentAdditions>
+</root>

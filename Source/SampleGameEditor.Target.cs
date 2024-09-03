@@ -1,7 +1,6 @@
 // Copyright © 2023 ab180. All rights reserved.
 
 using UnrealBuildTool;
-using System.Collections.Generic;
 
 public class SampleGameEditorTarget : TargetRules
 {
@@ -9,14 +8,19 @@ public class SampleGameEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.AddRange( new string[] { "SampleGame" } );
-		
-		bOverrideBuildEnvironment = true;
-		AdditionalCompilerArguments =
-			" -Wno-bitwise-instead-of-logical" +
-			" -Wno-unused-but-set-variable" +
-			" -Wno-deprecated-builtins" +
-			" -Wno-bitfield-constant-conversion" +
-			" -Wno-unknown-warning-option";
+		ExtraModuleNames.AddRange(new string[] { "SampleGame" });
+
+		if (Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			bOverrideBuildEnvironment = true;
+			AdditionalCompilerArguments = "-Wno-error";
+
+			// AdditionalCompilerArguments =
+			//     " -Wno-bitwise-instead-of-logical" +
+			//     " -Wno-unused-but-set-variable" +
+			//     " -Wno-deprecated-builtins" +
+			//     " -Wno-bitfield-constant-conversion" +
+			//     " -Wno-unknown-warning-option";
+		}
 	}
 }

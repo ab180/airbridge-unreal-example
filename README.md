@@ -8,7 +8,7 @@
 
 ## Before you start
 
-This page is a guide to setting up the Airbridge Unity SDK example app.
+This page is a guide to setting up the Airbridge Unreal SDK example app.
 
 ###  [Developer Docs](https://help.airbridge.io/ko/developers/unreal-sdk)
 
